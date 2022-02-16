@@ -1,7 +1,239 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 1 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 184 Rasterizer</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2018</h1>
+<h1 align="middle">Project 1: Rasterizer</h1>
+<h2 align="middle">Nicole Wang, Angela Gao, CS184</h2>
+
+<br><br>
+
+    <div>
+
+        <h2 align="middle">Overview</h2>
+        <p>In this project, we implemented some basic image rendering and modfication algorithms, including rasterization,
+        basic antialiasing, and texture mapping. It was amazing seeing how just a few simple equations and rules could translate
+        to such convincing image alterations, and definitely rewarding to see the correct output. Debugging was also slightly 
+        different from typical programming assignments -- translating the visual output from the code required really understanding 
+        how the computer encodes color.
+        </p>
+
+        <h2 align="middle">Section I: Rasterization</h2>
+
+        <h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
+
+        <p>
+            In this task, we implemented triangle rasterization, or determined which pixels should be colored-in to best represent the triangle.
+            Since the edges that compose the triangle are continuous, but we only have discrete points that we can color, these boundaries will not be perfect.
+        </p>
+
+        <p>
+            We first confined our search to a box just large enough to fit our entire triangle. This was done by finding the largest and smallest x
+            and y values of our triangle's vertices and iterating through each of the points within the bounds (min_x, max_x) and (min_y, max_y). For each  pixel,
+            we then found where it was located in relation to the edge (i.e. inside the triangle, outside the triangle, or on the edge itself). This was
+            determined using the equation L_i(x, y) = (x - X_i)dY + y - Y_i)dX_i, where an output greater than or equal to zero meant that the point was inside
+            the triangle or on its edge. We added an offset of +0.5 for the x and y-values of each pixel so that the middle of each pixel was used, giving
+            us the most accurate triangle given the resolution. These points were colored using the provided helper method fill_pixel.
+            Our algorithm is not worse than the one that checks each sample within the bounding box of the triangle, but it does perform exactly the same
+            as one that does since that is precisely the algorithm we used.
+        </p>
+
+        <img src="images/pt_1.png" align="middle" width="400px" />
+
+
+        <h3 align="middle">Part 2: Antialiasing triangles</h3>
+        
+        <p>
+            Supersampling is a useful antialiasing method that reduces the appearance of jaggies and other aliasing artifacts. In other words, 
+            jagged edges will appear smoother, and discontinuities within narrow shapes will be remedied.
+        </p>
+        <p>
+            There were several modifications that had to be made to the rasterization done in pt 1 to support supersampling. 
+            First, the sampling buffer is scaled by the sampling rate. For example, if the screen size is 100px and the sampling rate is 9, 
+            then the sampling buffer size is 900px. The RGB frame buffer stays the same, at (screen size) x 3, where the 3 represents the 
+            number of color channels. During rasterization itself, an additional nested for loop was added within the screen pixel iteration, 
+            and this loop iterates through the subsamples per pixel and populates the sample buffer. In the final step of the process, the RGB 
+            frame buffer is populated. This is accomplished by looping over the samples in the sample buffer, and, for each pixel, finding the 
+            average value of the samples. This average is then stored in the frame buffer via the RGB channels.
+        </p>
+        
+        <div align="middle">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/pt2_sr1.png" align="middle" width="400px" />
+                        <figcaption align="middle">Sampling rate: 1</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/pt2_sr4.png" align="middle" width="400px" />
+                        <figcaption align="middle">Sampling rate: 4</figcaption>
+                    </td>
+                </tr>
+                <br />
+                <tr>
+                    <td>
+                        <img src="images/pt2_sr16.png" align="middle" width="400px" />
+                        <figcaption align="middle">Sampling rate: 16</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <p>
+            Above, we see triangle rasterization with supersampling performed at a sampling rate of 1, 4, and 16 (in order from left to
+            right). At a sampling rate of 1, we see discontinuities, as we are sampling just once per pixel, and some (but not all) of
+            the pixel centers lie within the bounds of the triangle. Since the shading is binary – either the pixel is fully colored 
+            or fully uncolored – we see discontinuities in narrow regions of shading. At a sampling rate of 4 times per pixel, we begin 
+            to see some antialiasing, where the pixels begin to take on the average color of the 4 samples. Some breaks in the shape are
+            still seen, but the resulting image is still smoother than when sampled once per pixel. When 16 samples are taken per pixel,
+            the triangle corner is even more evident, and no discontinuities are seen.
+        </p>
+
+
+
+        <h3 align="middle">Part 3: Transforms</h3>
+
+        <img src="images/pt3.png" align="middle" width="400px" />
+        <p>
+            Cubeman is remembering how he danced during middle school in the 80s. He said that the colors were a trend at a time, we’re 
+            not quite sure what to believe.
+        </p>
+
+        
+    
+    <h2 align="middle">Section II: Sampling</h2>
+
+        <h3 align="middle">Part 4: Barycentric coordinates</h3>
+
+        <p>Barycentric coordinates are coordinates within a shape that shows relatively how far the point is from all the vertices of 
+        the shape. In the following image colors are representative of the distance from a particular vertex. Each vertex is assigned to 
+        a color and when a point is close to that vertex the color of that point is mostly the color of the vertex, as points move away 
+        from that vertex it slowly fades as it blends into the color of other vertices.</p>
+        <img src="images/pt4_1.png" align="middle" width="400px" />
+        <img src="images/pt4_2.png" align="middle" width="400px" />
+
+        <h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
+
+        <p>
+            Pixel sampling describes the process of mapping the pixels from an image onto a texture. For this part of the project, we 
+            used two different pixel sampling methods: bilinear and nearest sampling. Nearest sampling, in contrast, relies on the 
+            color of the texel that is closest to (or nearest to) the center of the pixel. Bilinear sampling, in contrast, is done 
+            by finding the four nearest texels and calculating the weighted average, where each weight corresponds to the distance 
+            between a texel and the point.
+        </p>
+        
+        <p>
+            For nearest sampling, this was accomplished by finding the nearest texel and using that one’s color. For bilinear 
+            interpolation, the four nearest texels were found. Two linear interpolations were used (two texels in each linear 
+            interpolation), and a final lerp was used to combine the outputs of the previous two lerps. The color obtained from 
+            this final operation was used to fill in the pixel.
+        </p>
+
+        <p>
+            Generally, bilinear sampling will result in a better gradient. Nearest sampling, since it uses one rather than 4 texels, 
+            will use far less computational power but result in a blockier texture mapping. There will be a large difference between 
+            the two methods when mapping onto textures with more warping / deviation from the original image.
+        </p>
+        
+        <p>
+            This difference is demonstrated in East Asia and the latitude and longitude lines on the world map.
+        </p>
+        <div align="middle">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/pt5_nearest1.png" align="middle" width="400px" />
+                        <figcaption align="middle">Nearest sampling, Sampling Rate = 1</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/pt5_bilinear1.png" align="middle" width="400px" />
+                        <figcaption align="middle">Bilinear sampling, Sampling Rate = 1</figcaption>
+                    </td>
+                </tr>
+                <br />
+                <tr>
+                    <td>
+                        <img src="images/pt5_nearest16.png" align="middle" width="400px" />
+                        <figcaption align="middle">Nearest sampling, Sampling Rate = 16</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/pt5_bilinear16.png" align="middle" width="400px" />
+                        <figcaption align="middle">Bilinear sampling, Sampling Rate = 16</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    
+        <h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
+
+        <p>
+            Level sampling is sampling based on levels of mipmaps, at each level, the high frequencies are filtered out then the whole
+            texture map is downsampled (by a factor log2 at each increasing level).
+        </P>
+        <p>
+            To implement level sampling, first the barycentric coordinates of (x,y), (x+1,y), and (x, y+1) are calculated, this is the 
+            distance between two pixels on the screen. Then the distances between pixels are calculated for the texture map. Then 
+            depending how far the texels are from its neighboring texel, the approximate mipmap level is calculated. The longer the 
+            distance between the texels the higher level of mipmap is used.
+        </p>
+        <p>
+            For level sampling, linear sampling takes more time than nearest. For nearest the entire image texture is calculated by 
+            accessing the same level of mipmap. In comparison linear needs extra time to calculate the weighted sum between two mipmap 
+            levels for every pixel. Though linear interpolation has stronger antialiasing power, and the final image has fewer jaggies 
+            than the one done using nearest mipmap level. Similarly, nearest pixel sampling is less costly in terms of memory usage, and 
+            it is faster than bilinear sampling. Bilinear creates a smoother image because its weighted sum lowers the frequency. Increasing 
+            the number of samples per pixel increases antialiasing power at the cost of memory and slower speed. From 1 sample to 4 samples 
+            per pixel we need memory and time to store and average 4 samples. Which is always higher than a lower sample rate.
+        </p>
+        <div align="middle">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/l_zero_p_nearest.png" align="middle" width="400px" />
+                        <figcaption align="middle">Nearest sampling, L_ZERO</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/l_zero_p_linear.png" align="middle" width="400px" />
+                        <figcaption align="middle">Bilinear sampling, L_ZERO</figcaption>
+                    </td>
+                </tr>
+                <br />
+                <tr>
+                    <td>
+                        <img src="images/l_nearest_p_nearest.png" align="middle" width="400px" />
+                        <figcaption align="middle">Nearest sampling, L_NEAREST</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/l_nearest_p_nearest.png" align="middle" width="400px" />
+                        <figcaption align="middle">Bilinear sampling, L_NEAREST</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div></body>
+
+    <p>Github classroom link: https://github.com/cal-cs184-student/p1-rasterizer-sp22-lerp</p>
+    <p>Webpage link: https://github.com/cal-cs184-student/sp22-project-webpages-nwang19/upload/master/proj1</p>
 </html>
