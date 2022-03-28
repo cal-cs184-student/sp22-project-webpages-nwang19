@@ -1,7 +1,277 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 3-1 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Nicole Wang, Angela Gao  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3: PathTracer</h1>
+    <h2 align="middle">Nicole Wang, Angela Gao</h2>
+
+    <div class="padded">
+        <p>In this assignment, we implemented basic lighting and speeding up algorithms used in computer graphics.</p>
+        <o>
+
+            <h2 align="middle">Part 1: Ray Generation and Intersection</h2>
+            <p>
+                We started the rendering process with a function that would generate a ray of light that could intersect objects in the scene. We calculated the
+                average irradiance of a single pixel, using a variable controlling the number of samples to take and random sampler to randomize the locations of
+                each one. For each sampled pixel, we create a new ray and evaluate the radiance. The new camera ray was made using hFov and vFov, modifying them
+                with a transform and normalization operation to get the ray’s direction.
+            </p>
+
+            <p>
+                Once the ray was generated and intersected with an object, we programmed the logic behind a ray-object intersection. For the triangle intersection,
+                we used the Moller Trumbore algorithm, as taught in lecture, which gave us the t-value at which the ray hit the triangle. An intersection struct
+                was then population with information based on the intersection, including a t-value and bsdf (obtained from the mesh). Similarly, sphere intersections
+                were handled using the quadratic formula, barycentric coordinate mapping, intersection initialization. Spheres may have two t-values, and we used the
+                closer one to populate the intersection data. In this part of the project, we used normal shading so that the objects would render without
+                implementing the reflectance part.
+            </p>
+
+            <p>
+                Below are images of simple geometries that we could render after completing this part.
+            </p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt1-1_spheres.png" width="400px" />
+                            <figcaption align="middle">CBSpheresLambertian</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt1-1_gems.png" width="400px" />
+                            <figcaption align="middle">CBGems</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt1-1_banana.png" width="400px" />
+                            <figcaption align="middle">Banana</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <h2 align="middle">Part 2: Bounding Volume Hierarchy</h2>
+            <p>
+                We then implemented a bounding volume hierarchy (BVH) system to speed up the PathTracer so that we could render more complex geometries
+                without excessive wait times. We first constructed a BVH by computing a bounding box and storing its centroid. We then traversed the boxes,
+                using the mean of the centroids to determine the splitting point. This was followed by handling the case of a ray intersecting a BVH. As
+                with the past intersections, there were two methods – one that would check for an intersection and one that would check for an intersection
+                while also updating the data of the intersection passed into it. The BVH intersection function would call the triangle/sphere ones and
+                recurse on its left and right children.
+            </p>
+            <p>
+                After implementing this, we were able to render more complicated structures, as pictured below.
+            </p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt2-cow 2-8127sec.png" width="400px" />
+                            <figcaption align="middle">Cow</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt2-maxplanck 68-5079sec.png" width="400px" />
+                            <figcaption align="middle">Max Planck</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt2-CBlucy-19-4092.png" width="400px" />
+                            <figcaption align="middle">Lucy</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <p>Here are some of the renderig times before and after BVH was implemented: </p>
+            <ul>CBGems: ~15s with 1 thread, no BVH</ul>
+            <ul>~0.4779s with 1 thread, with BVH</ul>
+            <ul>Banana: ~2:15 with 1 thread, no BVH</ul>
+            <ul>0.5229s with 1 thread, with bvh</ul>
+
+            <p> There is a clear speedup after BVH was implemented. Even though the banana is quite a bit more complex than the gems, this difference is
+            far more noticeable with no BVH, as rendering takes about 9x as long compared to just over 1x as long with BVH. </p>
+
+            <h2 align="middle">Part 3: Direct Illumination</h2>
+            <p>
+                For the next part, we implemented two types of direct lighting functions: direct hemisphere lighting and direct lighting with importance
+                sampling. For the first, we uniformly sampled around the hit, calculating the radiance from every ray intersecting a light source. This was
+                simpler to do but produced a noisier, less smooth image.
+            </p>
+
+            <p>
+                In direct lighting with importance sampling, we all account for all light sources. This was  done by using SceneLight and sampling the
+                radiance from every light’s surface. The overall result was a smoother image, but with a slower rendering time. A comparison of the two
+                outputs is shown here. Each set was taken at 1, 4, 16, and 64 light rays -- the first set was done with lighting sampling and the second
+                with uniform hemisphere sampling.
+            </p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt3-imp-l1.png" width="360px" />
+                            <figcaption align="middle">1 light ray</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt3-imp-l4.png" width="360px" />
+                            <figcaption align="middle">4 light rays</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt3-imp-l16.png" width="360px" />
+                            <figcaption align="middle">16 light rays</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt3-imp-l64.png" width="360px" />
+                            <figcaption align="middle">64 light rays</figcaption>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt3-hem-l1.png" width="360px" />
+                            <figcaption align="middle">1 light ray</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt3-hem-l4.png" width="360px" />
+                            <figcaption align="middle">4 light rays</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt3-hem-l16.png" width="360px" />
+                            <figcaption align="middle">16 light rays</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt3-hem-l64.png" width="360px" />
+                            <figcaption align="middle">64 light rays</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <h2 align="middle">Part 4: Global Illumination</h2>
+            <p>
+                The next step for more realistic rendering was implementing indirect lighting. Given that we had completed the case of what light should do
+                when it bounced a single time, we implemented at_least_one_bounce_radiance, which used the one bounce case and a Russian roulette algorithm
+                to determine if the ray should bounce again or not (with probably 0.35 that it should not). For greatest contrast between the two lighting 
+                schemes, an image under direct (left) and indirect (right) illumination is shown below.
+            </p>
+
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt4_spheres.png" width="400px" />
+                            <figcaption align="middle">Direct</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4_indirect_spheres.png" width="400px" />
+                            <figcaption align="middle">Indirect</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <p>
+                At a rate of 1024 samples per pixel, CBbunny.dae was rendered views at max_ray_depths of 0, 1, 2, 3, and 100.
+            </p>
+
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt4_m0.png" width="360px" />
+                            <figcaption align="middle">Max Ray Depth: 0</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4_m1.png" width="360px" />
+                            <figcaption align="middle">Max Ray Depth: 1</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4_m2.png" width="360px" **
+                                 />
+                            <figcaption align="middle">Max Ray Depth: 2</figcaption>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt4_m3.png" width="360px" />
+                            <figcaption align="middle">Max Ray Depth: 3</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4_m100.png" width="360px" />
+                            <figcaption align="middle">Max Ray Depth: 100</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <p> Using 4 light rays, we rendered the basic spheres image at sample-per-pixel rates of 1, 2, 4, 8, 16, 64, and 1024. </p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt4-5-1samp.png" width="360px" />
+                            <figcaption align="middle">Sample-per-pixel rate: 1</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4-5-4samp.png" width="360px" />
+                            <figcaption align="middle">Sample-per-pixel rate: 4</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4-5-8samp.png" width="360px" />
+                            <figcaption align="middle">Sample-per-pixel rate: 8</figcaption>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt4-5-16samp.png" width="360px" />
+                            <figcaption align="middle">Sample-per-pixel rate: 16</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4-5-64samp.png" width="360px" />
+                            <figcaption align="middle">Sample-per-pixel rate: 64</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt4-5-1024samp.png" width="360px" />
+                            <figcaption align="middle">Sample-per-pixel rate: 1024</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2 align="middle">Part 5: Adaptive Sampling</h2>
+            <p>
+                To finish up this portion of the project, we did adaptive sampling. Using a 95% confidence interval, we followed the algorithm described in
+                the project spec, and added it on the existing ray generation in part 1. Our trusty spheres image and its sampling rate map are shown below.
+            </p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="images/pt4_spheres.png" width="360px" />
+                            <figcaption align="middle">Original Image</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="images/pt5_rate.png" width="360px" />
+                            <figcaption align="middle">Rate Map</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+        </o></div>
+</body>
 </html>
+
+
+
+
