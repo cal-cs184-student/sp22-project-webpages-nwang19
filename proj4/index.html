@@ -1,7 +1,248 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 4 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Nicole Wang, Angela Gao  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 4: Clothsim</h1>
+    <h2 align="middle">Nicole Wang, Angela Gao</h2>
+
+    <div class="padded">
+        <p>In this assignment, we coded a cloth simulation.</p>
+
+        <h2 align="middle">Part 1: Masses and Springs</h2>
+        <p>In this part, we implemented masses and springs on the cloth.</p>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/p1-1-1.png" width="480px" />
+                        <figcaption align="middle">All constraints are enabled</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/p1-1-2.png" width="480px" />
+                        <figcaption align="middle">Another angle of all constraints enabled</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/p1-2-1.png" width="480px" />
+                        <figcaption align="middle">(1) without any shearing constraints</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/p1-2-2.png" width="480px" />
+                        <figcaption align="middle">(2) with only shearing constraints</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/p1-2-3.png" width="480px" />
+                        <figcaption align="middle">(3) with all constraints</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+        <h2 align="middle">Part 2: Simulation via numerical integration</h2>
+        <p>
+            In this part, we implemented integration across the springs and masses to better approximate the forces acting on them. An image of the finished
+            product is shown below.
+        </p>
+        <div align="center"> <img src="images/pt2_restingWireframe.png" width="480px" /> </div>
+        <p> Experimenting with the parameters -- ks, density, and damping -- yielded interesting visual results. </p>
+
+        <h3 align="middle">Spring Constant (ks)</h3>
+        <p>
+            At low ks, the resting state of the cloth showed more noticeable deformation – likewise, the resting state of the cloth at very high ks was less impacted by
+            the forces. In between start to rest, there also appeared to be far more turbulent, small-scale changes in the cloth at low ks compared to high ks. Essentially,
+            the higher the ks, the greater the stiffness of the cloth, which makes sense since it is the spring constant.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt2_lowKs.png" width="480px" />
+                        <figcaption align="middle">ks = 100</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt2_highKs.png" width="480px" />
+                        <figcaption align="middle">ks = 50,000</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt2_turbulentChange.png" width="480px" />
+                        <figcaption align="middle">Turbulent patterns during change at low ks</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <h3 align="middle">Density</h3>
+        <p>
+            Higher density led to stronger deformation given the same spring constant. This makes sense since a heavier cloth will have stronger forces acting on it,
+            and therefore more morphing. At very low densities, the cloth would take significantly longer to “settle down” after the new constraint was added – there
+            was just less force, so it couldn’t reach stability as quickly.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt2_density5.png" width="480px" />
+                        <figcaption align="middle">Density = 5</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt2_density150.png" width="480px" />
+                        <figcaption align="middle">Density = 150</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt2_density1500.png" width="480px" />
+                        <figcaption align="middle">Density = 1500</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt2_density1Changing.png" width="480px" />
+                        <figcaption align="middle">Cloth while changing at low density (density=1)</figcaption>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+        <h3 align="middle">Damping</h3>
+        <p>
+            Damping was harder to demonstrate via screenshot, but it appeared to mitigate the “turbulent effects” described above on the cloth in between the start and
+            resting state.
+        </p>
+
+
+
+
+        <h2 align="middle">Part 3: Handling collisions with other objects</h2>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/p3-1-1.png" width="480px" />
+                        <figcaption align="middle">ks = 500</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/p3-1-2.png" width="480px" />
+                        <figcaption align="middle">ks = 5000</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/p3-1-3.png" width="480px" />
+                        <figcaption align="middle">ks = 5000</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <p>
+            The varying ks makes the cloth look like varying degrees of stiffness while
+            falling on the sphere. From ks = 5000 the part that falls off the sphere looks much flatter
+            than ks = 500, which looks like that it folds around the sphere easily.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/p3-2.png" width="480px" />
+                        <figcaption align="middle">plane</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+
+        <h2 align="middle">Part 4: Handling self-collisions</h2>
+        <p>
+            text
+        </p>
+
+        <h2 align="middle">Part 5: Shaders</h2>
+        <p>
+            A shader program is a useful tool that runs in parallel on the GPU and helps with carrying out specific parts of the rasterization pipeline. 
+            Two types of shader programs used here are vertex and fragment shaders. As their name implies, vertex shaders apply geometric transformations to the vertices.
+            Fragment shaders are used after rasterization to process the attributes of fragments, such as their color.
+        </p>
+
+        <p>
+            The Blinn-Phong shading model consists of 3 parts: diffuse, ambient, and specular shading. The diffuse shading was implemented in the previous part of this
+            project, and was combined with the other two to create the final shading, which is given by complete Blinn-Phong equation.
+            Below is a screenshot of your Blinn-Phong shader outputting the individual components, then the entire Blinn-Phong model.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt5_PhongAmbient.png" width="480px" />
+                        <figcaption align="middle">Ambient Component</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt5_PhongDiffuse.png" width="480px" />
+                        <figcaption align="middle">Diffuse Component</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt5_PhongSpecular.png" width="480px" />
+                        <figcaption align="middle">Specular Component</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt5_PhongFull.png" width="480px" />
+                        <figcaption align="middle">Complete Blinn-Phong Shading</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <p>
+            We used a texture mapping shader to superimpose an avocado skin texture over the sphere.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt5_customTexture.png" width="480px" />
+                        <figcaption align="middle">Avocado Cloth</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <p> A final shading technique implemented was mirror shading, displayed below!</p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt5_mirrorCloth.png" width="480px" />
+                        <figcaption align="middle">Mirrored Hanging Cloth</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt5_mirrorSphere.png" width="480px" />
+                        <figcaption align="middle">Mirrored Cloth Hanging over a Sphere</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+    </div></body>
 </html>
