@@ -22,7 +22,7 @@
         <p>In this assignment, we coded a cloth simulation.</p>
 
         <h2 align="middle">Part 1: Masses and Springs</h2>
-        <p>In this part, we implemented masses and springs on the cloth.</p>
+        <p>In this part, we added masses and springs on the cloth.</p>
 
         <div align="center">
             <table style="width=100%">
@@ -158,7 +158,7 @@
                 <tr>
                     <td align="middle">
                         <img src="images/p3-2.png" width="480px" />
-                        <figcaption align="middle">plane</figcaption>
+                        <figcaption align="middle">The cloth lying peacefully at rest on the plane</figcaption>
                     </td>
                 </tr>
             </table>
@@ -168,12 +168,104 @@
 
         <h2 align="middle">Part 4: Handling self-collisions</h2>
         <p>
-            text
+            In this part we implemented self-collisions so that the cloth does not
+            intersection itself.
         </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt4_start.png" width="480px" />
+                        <figcaption align="middle">Cloth begins to fall</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_middle.png" width="480px" />
+                        <figcaption align="middle">Cloth mid-fall</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_end.png" width="480px" />
+                        <figcaption align="middle">Cloth at rest</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <p> ks is the spring constant. In the following pictures, a small spring constant leads to more
+        wrinkles in the cloth, while a large spring constant produces less wrinkles. A larger
+        spring constants simulates a more realistic cloth.</p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt4_start50.png" width="480px" />
+                        <figcaption align="middle">Cloth begins to fall (ks=50)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_mid50.png" width="480px" />
+                        <figcaption align="middle">Cloth mid-fall (ks=50)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_end50.png" width="480px" />
+                        <figcaption align="middle">Cloth at rest (ks=50)</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt4_start50k.png" width="480px" />
+                        <figcaption align="middle">Cloth begins to fall (ks=50000)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_mid50k.png" width="480px" />
+                        <figcaption align="middle">Cloth mid-fall (ks=50000)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_end50k.png" width="480px" />
+                        <figcaption align="middle">Cloth at rest (ks=50000)</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <p> Changing the density is similar to the effects of changing the spring constant. 
+        A larger density have a similar effect as a small spring constant. Both of these options
+        contribute to more variations in positions at specific areas on the cloth. A lower
+        density leads to a more stiff looking cloth.</p>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt4_start_density5.png" width="480px" />
+                        <figcaption align="middle">Cloth begins to fall (density=5)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_mid_density5.png" width="480px" />
+                        <figcaption align="middle">Cloth mid-fall (density=5)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_end_density5.png" width="480px" />
+                        <figcaption align="middle">Cloth at rest  (density=5)</figcaption>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt4_start_density1000.png" width="480px" />
+                        <figcaption align="middle">Cloth begins to fall (density=1000)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_mid_density1000.png" width="480px" />
+                        <figcaption align="middle">Cloth mid-fall (density=1000)</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt4_end_density1000.png" width="480px" />
+                        <figcaption align="middle">Cloth at rest  (density=1000)</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
         <h2 align="middle">Part 5: Shaders</h2>
         <p>
-            A shader program is a useful tool that runs in parallel on the GPU and helps with carrying out specific parts of the rasterization pipeline. 
+            A shader program is a useful tool that runs in parallel on the GPU and helps with carrying out specific parts of the rasterization pipeline.
             Two types of shader programs used here are vertex and fragment shaders. As their name implies, vertex shaders apply geometric transformations to the vertices.
             Fragment shaders are used after rasterization to process the attributes of fragments, such as their color.
         </p>
@@ -226,6 +318,26 @@
                 </tr>
             </table>
         </div>
+        <p>
+            Once texture mapping was complete, we did bump (left) and displacement (left) mapping. The former only changed the rendering of lighting on the object,
+            but preserved the geometry, so simply adding a fragment shader was sufficient. The displacement mapping, on the other hand, actually changes the geometry
+            of the objects, so both a vertex shader and fragment shader were used to achieve this result. The differences in the two can be seen by observing
+            the silhouettes below.
+        </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                        <img src="images/pt5_bump.png" width="480px" />
+                        <figcaption align="middle">Bump</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/pt5_displacement.png" width="480px" />
+                        <figcaption align="middle">Displacement</figcaption>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
         <p> A final shading technique implemented was mirror shading, displayed below!</p>
         <div align="center">
@@ -246,3 +358,5 @@
     </div>
     </div></body>
 </html>
+
+
